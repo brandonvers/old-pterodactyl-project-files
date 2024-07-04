@@ -1,0 +1,97 @@
+/routes/api-client.php
+Please insert this codes to /routes/api-client.php to the bottom of the file
+
+Route::group(['prefix' => '/knowledgebase'], function () {
+    Route::get('/', 'KnowledgebaseController@index');
+    Route::get('/list/{id}', 'KnowledgebaseController@list');
+    Route::get('/page/{id}', 'KnowledgebaseController@page');
+});
+
+
+
+
+/routes/admin.php
+Please insert this codes to /routes/admin.php to the bottom of the file
+
+/*
+|--------------------------------------------------------------------------
+| Knowledge Base Controller Routes
+|--------------------------------------------------------------------------
+|
+| Endpoint: /knowledgebase
+|
+*/
+Route::group(['prefix' => '/knowledgebase'], function () {
+
+    Route::get('/', 'KnowledgebaseController@index')->name('admin.knowledgebase');
+    Route::post('/settings', 'KnowledgebaseController@settings')->name('admin.knowledgebase.settings');
+
+    Route::group(['prefix' => '/questions'], function () {
+        Route::get('/', 'KnowledgebaseController@question_index')->name('admin.knowledgebase.questions.index');
+        Route::get('/new', 'KnowledgebaseController@question_new')->name('admin.knowledgebase.questions.new');
+        Route::post('/create', 'KnowledgebaseController@question_create')->name('admin.knowledgebase.questions.create');
+        Route::get('/edit/{id}', 'KnowledgebaseController@question_edit')->name('admin.knowledgebase.questions.edit');
+        Route::post('/update/{id}', 'KnowledgebaseController@question_update')->name('admin.knowledgebase.questions.update');
+        Route::delete('/delete', 'KnowledgebaseController@question_delete')->name('admin.knowledgebase.questions.delete');
+    });
+
+    Route::group(['prefix' => '/category'], function () {
+        Route::get('/', 'KnowledgebaseController@category_index')->name('admin.knowledgebase.category.index');
+        Route::get('/new', 'KnowledgebaseController@category_new')->name('admin.knowledgebase.category.new');
+        Route::post('/create', 'KnowledgebaseController@category_create')->name('admin.knowledgebase.category.create');
+        Route::get('/edit/{id}', 'KnowledgebaseController@category_edit')->name('admin.knowledgebase.category.edit');
+        Route::post('/update/{id}', 'KnowledgebaseController@category_update')->name('admin.knowledgebase.category.update');
+        Route::delete('/delete', 'KnowledgebaseController@category_delete')->name('admin.knowledgebase.category.delete');
+    });
+});
+
+
+
+/resources/themes/pterodactyl/layouts/admin.blade.php
+Please insert this codes to /resources/themes/pterodactyl/layouts/admin.blade.php above the <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.api') ?: 'active' }}"> line
+
+<li class="{{ ! starts_with(Route::currentRouteName(), 'admin.knowledgebase') ?: 'active' }}">
+    <a href="{{ route('admin.knowledgebase')}}">
+        <i class="fa fa-book"></i> <span>Knowledgebase</span>
+    </a>
+</li>
+
+
+
+
+/resources/scripts/components/App.tsx
+Please paste this line to /resources/scripts/components/App.tsx under the import GlobalStylesheet from '@/assets/css/GlobalStylesheet'; line
+
+import KnowledgebaseRouter from '@/routers/KnowledgebaseRouter';
+
+
+Please paste this line to /resources/scripts/components/App.tsx above the <Route path="/auth" component={AuthenticationRouter}/> line
+
+<Route path="/knowledgebase" component={KnowledgebaseRouter}/>
+
+
+
+
+/resources/scripts/components/NavigationBar.tsx
+Please paste this line to /resources/scripts/components/NavigationBar.tsx above the {rootAdmin && line
+
+<NavLink to={'/knowledgebase'}>
+    <FontAwesomeIcon icon={faBook}/>
+</NavLink>
+
+
+Please paste this line to /resources/scripts/components/NavigationBar.tsx after the faUserCircle 
+
+, faBook
+
+
+
+
+
+After all code inserted to code and app and resources and database and vendor folder pasted. Please run this commands (node is required, min version: v13.x [node -v]):
+- npm i -g yarn
+- cd /var/www/pterodactyl
+- yarn install
+- yarn run build:production
+- php artisan route:clear && php artisan cache:clear && php artisan view:clear
+- php artisan migrate

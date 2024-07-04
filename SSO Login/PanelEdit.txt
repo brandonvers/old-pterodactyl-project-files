@@ -1,0 +1,258 @@
+Note: all files and paths are located in the /var/www/pterodactyl/ directory
+
+
+Upload all the folders into the /var/www/pterodactyl/ directory
+If it asks to overwrite a file, accept it
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Providers/EventServiceProvider.php under namespace Pterodactyl\Providers;
+
+use SocialiteProviders\Manager\SocialiteWasCalled;
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Providers/EventServiceProvider.php under ]; on line 21
+
+    public function boot() {
+        parent::boot();
+
+        if (!app('config')->get('pterodactyl.auth.oauth.enabled')) return;
+
+        $drivers = json_decode(app('config')->get('pterodactyl.auth.oauth.drivers'), true);
+
+        $listeners = [];
+
+        foreach ($drivers as $driver => $options) {
+            if (array_has($options, 'listener')) {
+                $listener = $options['listener'];
+                if (strpos($listener, '@') !== false) {
+                    $class = explode('@', $listener)[0];
+                    $method = explode('@', $listener)[1];
+
+                    if (method_exists($class, $method)) array_push($listeners, $listener);
+                }
+            }
+        }
+
+        foreach (array_unique($listeners) as $listener) {
+            app('events')->listen(SocialiteWasCalled::class, $listener);
+        }
+    }
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Providers/SettingsServiceProvider.php under 'pterodactyl:client_features:allocations:range_end',
+
+        'pterodactyl:auth:oauth:enabled',
+        'pterodactyl:auth:oauth:drivers',
+        'pterodactyl:auth:oauth:required',
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Providers/SettingsServiceProvider.php under 'mail:password', in the $encrypted array
+
+        'pterodactyl:auth:oauth:drivers',
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file composer.json under "league/flysystem-memory": "^1.0",
+
+        "appstract/laravel-blade-directives": "^1.8",
+        "cakephp/chronos": "^1.3",
+        "laravel/socialite": "^5.2.2",
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file composer.json under "staudenmeir/belongs-to-through": "^2.11",
+
+        "socialiteproviders/discord": "^2.0",
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file config/app.php under Prologue\Alerts\AlertsServiceProvider::class,
+
+        SocialiteProviders\Manager\ServiceProvider::class,
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file config/pterodactyl.php under ], on line 41
+
+        'oauth' => [
+            'enabled' => env('APP_OAUTH_ENABLED', 0),
+            'required' => env('APP_OAUTH_REQUIRED', 0),
+            'drivers' => json_encode([
+                'generic' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_GENERIC_KEY'),
+                    'client_secret' => env('APP_OAUTH_GENERIC_SECRET'),
+                    'listener' => 'Pterodactyl\\Extensions\\Socialite\\GenericExtendSocialite@handle',
+                ],
+                'discord' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_DISCORD_KEY'),
+                    'client_secret' => env('APP_OAUTH_DISCORD_SECRET'),
+                    'listener' => 'SocialiteProviders\\Discord\\DiscordExtendSocialite@handle',
+                ],
+                'google' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_GOOGLE_KEY'),
+                    'client_secret' => env('APP_OAUTH_GOOGLE_SECRET'),
+                ],
+                'github' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_GITHUB_KEY'),
+                    'client_secret' => env('APP_OAUTH_GITHUB_SECRET'),
+                ],
+                'twitter' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_TWITTER_KEY'),
+                    'client_secret' => env('APP_OAUTH_TWITTER_SECRET'),
+                ],
+                'facebook' => [
+                    'enabled' => false,
+                    'client_id' => env('APP_OAUTH_FACEBOOK_KEY'),
+                    'client_secret' => env('APP_OAUTH_FACEBOOK_SECRET'),
+                ],
+            ]),
+            'generic' => [
+                'url' => [
+                    'auth' => 'https://domain.tld/oauth/route/auth',
+                    'token' => 'https://domain.tld/oauth/route/token',
+                    'user' => 'https://domain.tld/oauth/route/user'
+                ],
+                'id_field' => 'id',
+                'scopes' => [],
+                'scope_separator' => ' ',
+            ]
+        ],
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/views/partials/admin/settings/nav.blade.php under <li @if($activeTab === 'advanced')class="active"@endif><a href="{{ route('admin.settings.advanced') }}">Advanced</a></li>
+
+                    <li @if($activeTab === 'oauth')class="active"@endif><a href="{{ route('admin.settings.oauth') }}">OAuth</a></li>
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file routes/admin.php under Route::get('/advanced', 'Settings\AdvancedController@index')->name('admin.settings.advanced');
+
+    Route::get('/oauth', 'Settings\OAuthController@index')->name('admin.settings.oauth');
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file routes/admin.php under Route::patch('/advanced', 'Settings\AdvancedController@update');
+
+    Route::patch('/oauth', 'Settings\OAuthController@update');
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file routes/auth.php under Route::post('/password/reset', 'ResetPasswordController')->name('auth.reset-password');
+
+    Route::get('/oauth', 'OAuthController@redirect')->name('oauth.redirect');
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file routes/auth.php under Route::get('/logout', 'LoginController@logout')->name('auth.logout')->middleware('auth');
+
+Route::get('/oauth/callback', 'OAuthController@callback')->name('oauth.callback');
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Http/ViewComposers/AssetComposer.php under { on line 27
+
+        $drivers = [];
+        $driversConfig = json_decode(app('config')->get('pterodactyl.auth.oauth.drivers'), true);
+
+        foreach ($driversConfig as $driver => $options) {
+            if ($options['enabled']) array_push($drivers, $driver);
+        }
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Http/ViewComposers/AssetComposer.php under 'analytics' => config('app.analytics') ?? '',
+
+            'oauth' => [
+                'enabled' => config('pterodactyl.auth.oauth.enabled', false),
+                'required' => config('pterodactyl.auth.oauth.required', 0) == 3,
+                'drivers' => json_encode($drivers),
+            ],
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/state/settings.ts under analytics: string;
+
+    oauth: {
+        enabled: boolean;
+        required: boolean;
+        drivers: string;
+    };
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Http/Controllers/Auth/LoginController.php under { on line 70
+
+        if (config('pterodactyl.auth.oauth.required') == 3) {
+            return $this->sendFailedLoginResponse($request);
+        }
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Http/Kernel.php under use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+
+use Pterodactyl\Http\Middleware\RequireOAuthAuthentication;
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Http/Kernel.php under use RequireTwoFactorAuthentication::class,
+
+            RequireOAuthAuthentication::class,
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file app/Models/User.php under 'root_admin',
+
+        'oauth',
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/lang/en/auth.php under '2fa_must_be_enabled' => 'The administrator has required that 2-Factor Authentication be enabled for your account in order to use the Panel.',
+
+    'oauth_must_be_enabled' => 'The administrator has required that OAuth Authentication be enabled for your account in order to use the Panel.',
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/components/App.tsx under language: string;
+
+        oauth: string;
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/components/App.tsx under useTotp: PterodactylUser.use_totp,
+
+            oauth: PterodactylUser.oauth,
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/state/user.ts under useTotp: boolean;
+
+    oauth: string;
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file routes/base.php under ->name('account');
+
+Route::get('/account/oauth/link', 'OAuthController@link')->name('account.oauth.link');
+Route::get('/account/oauth/unlink', 'OAuthController@unlink')->name('account.oauth.unlink');
+
+-------------------------------------------------------------------------------------
+
+Run "cd /var/www/pterodactyl && composer update --ignore-platform-reqs && yarn run build:production && chown -R www-data:www-data * && php artisan migrate && php artisan view:clear && php artisan cache:clear" in the SSH
+
+If you got a error like "Command 'yarn' not found", execute the following in the SSH (this might take some time):
+cd /var/www/pterodactyl && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs && npm i -g yarn && cd /var/www/pterodactyl && yarn install
+
+Then run "cd /var/www/pterodactyl && composer update --ignore-platform-reqs && yarn run build:production && chown -R www-data:www-data * && php artisan migrate && php artisan view:clear && php artisan cache:clear" again
+
+-------------------------------------------------------------------------------------
+
+Read "oauth settings.txt" for instructions to set up oauth login

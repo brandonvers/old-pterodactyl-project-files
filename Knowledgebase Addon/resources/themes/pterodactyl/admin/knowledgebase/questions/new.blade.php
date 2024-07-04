@@ -1,0 +1,84 @@
+{{-- Pterodactyl - Panel --}}
+{{-- Copyright (c) 2015 - 2017 Dane Everitt <dane@daneeveritt.com> --}}
+
+{{-- This software is licensed under the terms of the MIT license. --}}
+{{-- https://opensource.org/licenses/MIT --}}
+@extends('layouts.admin')
+
+@section('title')
+    Addons
+@endsection
+
+@section('content-header')
+    <h1>Knowledgebase<small>Here you can see information.</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ route('knowledgebase.index') }}">Home</a></li>
+        <li class="active">Knowledgebase</li>
+    </ol>
+@endsection
+
+@section('content')
+
+@if(Auth::user()->root_admin)
+	<div class="row">
+        <div class="col-xs-12">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Question Creator</h3>
+                    <div class="box-tools">
+                        <a href="{{ route('admin.knowledgebase.questions.list') }}" class="btn btn-sm btn-primary">Go Back</a>
+                    </div>
+                </div>
+                <form method="post" action="{{ route('admin.knowledgebase.questions.create')  }}">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label for="title" class="form-label">Subject</label>
+                            <input type="text" name="Subject" id="title" class="form-control" value="The Subject" />
+                        </div>
+                        <div class="form-group">
+                            <label for="title" class="form-label">Created By:</label>
+                            <input type="text" name="Created" id="author" class="form-control" value="{{ Auth::user()->name_first }}" />
+                        </div>
+                        <div class="form-group">
+                            <label for="title" class="form-label">Category:</label>
+                            <select name="category" class="form-control">
+                            @foreach($category as $category)
+                            <option value="{{ $category->id }}">{{ $category->Name }}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="body" class="form-label"><A>Answer</A></label>
+                            <textarea name="Answer" id="Answer" rows="4" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        {!! csrf_field() !!}
+                        <button class="btn btn-success pull-left" type="submit">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
+@if(!Auth::user()->root_admin)
+<div class="box-body" style="padding-left: 30px; background-color: rgba(255, 56, 56, 0.50) !important; border-radius: 20px; color: #d4d4d4 !important; padding-right: 30px; padding-bottom: 30px; margin-top: 5%;">
+                    <h2 style="font-size: 22px; font-weight: 500;"><i class="fas fa-exclamation-triangle" style="color: rgb(255, 0, 0) !important;" aria-hidden="true"></i> Knowledgebase</h2>
+                    <p>You can't use this page you aren't an admin user.</p>
+                </div></div>
+    @endif
+    
+
+@endsection
+
+@section('footer-scripts')
+    @parent
+    <script>
+        $('tr.server-description').on('mouseenter mouseleave', function (event) {
+            $(this).prev('tr').css({
+                'background-color': (event.type === 'mouseenter') ? '#f5f5f5' : '',
+            });
+        });
+    </script>
+    {!! Theme::js('js/frontend/serverlist.js') !!}
+@endsection

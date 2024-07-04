@@ -1,0 +1,415 @@
+/routes/admin.php
+Please insert this codes to /routes/admin.php to the bottom of the file
+
+/*
+|--------------------------------------------------------------------------
+| Billing Controller Routes
+|--------------------------------------------------------------------------
+|
+| Endpoint: /admin/billing
+|
+*/
+Route::group(['prefix' => 'billing'], function () {
+
+    Route::get('/', 'BillingController@index')->name('admin.billing');
+
+    // settings
+    Route::get('/settings', 'BillingController@settings')->name('admin.billing.settings');
+    Route::post('/settings', 'BillingController@settings_sotre')->name('admin.billing.settings.sotre');
+
+    // invoices
+    Route::get('/invoices', 'BillingController@invoices')->name('admin.billing.invoices');
+    Route::get('/invoices/pdf/{id}', 'BillingController@invoices_pdf')->name('admin.billing.invoices.pdf');
+    Route::get('/invoices/new', 'BillingController@invoices_new')->name('admin.billing.invoices.new');
+    Route::post('/invoices/new', 'BillingController@invoices_store')->name('admin.billing.invoices.store');
+
+    // tos
+    Route::get('/tos', 'BillingController@tos')->name('admin.billing.tos');
+    Route::post('/tos/update', 'BillingController@tos_update')->name('admin.billing.tos.update');
+
+    // categories
+    Route::get('/categories', 'BillingController@categories')->name('admin.billing.categories');
+    Route::get('/categories/new', 'BillingController@categories_new')->name('admin.billing.categories.new');
+    Route::post('/categories/new', 'BillingController@categories_store')->name('admin.billing.categories.store');
+    Route::get('/categories/edit/{id}', 'BillingController@categories_edit')->name('admin.billing.categories.edit');
+    Route::post('/categories/edit/{id}', 'BillingController@categories_update')->name('admin.billing.categories.update');
+    Route::get('/categories/delete/{id}', 'BillingController@categories_delete')->name('admin.billing.categories.delete');
+
+    // products
+    Route::get('/products', 'BillingController@products')->name('admin.billing.products');
+    Route::get('/products/new', 'BillingController@products_new')->name('admin.billing.products.new');
+    Route::post('/products/new', 'BillingController@products_store')->name('admin.billing.products.store');
+    Route::get('/products/edit/{id}', 'BillingController@products_edit')->name('admin.billing.products.edit');
+    Route::post('/products/edit/{id}', 'BillingController@products_update')->name('admin.billing.products.update');
+    Route::get('/products/delete/{id}', 'BillingController@products_delete')->name('admin.billing.products.delete');
+
+    // products
+    Route::get('/deploy', 'BillingController@deploy')->name('admin.billing.deploy');
+    Route::post('/deploy/edit/{id}', 'BillingController@deploy_update')->name('admin.billing.deploy.update');
+
+
+    // gateways
+    Route::get('/gateways', 'BillingController@gateways')->name('admin.billing.gateways');
+    Route::get('/gateways/{gateway}/edit', 'BillingController@gateways_edit')->name('admin.billing.gateways.edit');
+    Route::post('/gateways/{gateway}/edit', 'BillingController@gateways_store')->name('admin.billing.gateways.store');
+    Route::get('/gateways/{gateway}/activate', 'BillingController@gateways_activate')->name('admin.billing.gateways.activate');
+    Route::get('/gateways/{gateway}/deactivate', 'BillingController@gateways_deactivate')->name('admin.billing.gateways.deactivate');
+
+    // promotional codes
+    Route::get('/promotional-codes', 'BillingController@promotional_codes')->name('admin.billing.promotional-codes');
+    Route::get('/promotional-codes/new', 'BillingController@promotional_codes_new')->name('admin.billing.promotional-codes.new');
+    Route::post('/promotional-codes/new', 'BillingController@promotional_codes_store')->name('admin.billing.promotional-codes.store');
+    Route::get('/promotional-codes/edit/{code}', 'BillingController@promotional_codes_edit')->name('admin.billing.promotional-codes.edit');
+    Route::post('/promotional-codes/edit/{code}', 'BillingController@promotional_codes_update')->name('admin.billing.promotional-codes.update');
+    Route::get('/promotional-codes/delete/{code}', 'BillingController@promotional_codes_delete')->name('admin.billing.promotional-codes.delete');
+
+    // servers
+    Route::get('/servers', 'BillingController@servers')->name('admin.billing.servers');
+    Route::get('/servers/edit/{server}', 'BillingController@servers_edit')->name('admin.billing.servers.edit');
+
+    // users
+    Route::get('/users', 'BillingController@users')->name('admin.billing.users');
+    Route::post('/users/update/{id}', 'BillingController@updateuser')->name('admin.billing.users.update');
+
+});
+
+
+
+
+/routes/api-client.php
+Please insert this codes to /routes/api-client.php to the bottom of the file
+
+Route::group(['prefix' => '/billing'], function () {
+    Route::get('/', 'BillingController@index');
+    Route::post('/update', 'BillingController@update');
+
+    Route::get('/invoices', 'BillingController@invoices');
+    Route::get('/invoice/pdf/{id}', 'BillingController@invoice_pdf');
+
+    Route::post('/paypal', 'BillingController@paypal')->name('billing.paypal');
+    Route::get('/paypal/callback', 'BillingController@paypalCallback')->name('billing.paypal.callback');
+    
+    Route::post('/dedipass/callback', 'BillingController@dedipassCallback');
+    Route::get('/payssion/callback', 'BillingController@payssionCallback');
+
+    Route::post('/link', 'BillingController@link');
+    Route::post('/unlink', 'BillingController@unlink');
+    Route::post('/billing', 'BillingController@billing');
+    
+
+    Route::get('/deploy', 'BillingController@deploy');
+    Route::post('/deploy', 'BillingController@deploy_store');
+
+    Route::get('/store', 'BillingController@store');
+    Route::get('/categories', 'BillingController@categories');
+    Route::get('/category/{id}', 'BillingController@category');
+    Route::get('/products', 'BillingController@products');
+
+    
+    Route::get('/store/checkout', 'BillingController@checkout');
+    Route::post('/store/promotional', 'BillingController@promotional');
+
+    Route::post('/store/product/add/{product_id}', 'BillingController@add_product');
+    Route::post('/buy', 'BillingController@buy');
+    Route::delete('/store/product/delete/{product_id}', 'BillingController@remove_product');
+    Route::delete('/store/empty/cart', 'BillingController@empty_cart');
+
+    Route::get('/extend/{id}', 'BillingController@extend');
+    Route::post('/extend/promotional/{id}', 'BillingController@promotional');
+    Route::post('/extend/handler/{id}', 'BillingController@extend_server'); 
+});
+
+
+
+/resources/themes/pterodactyl/layouts/admin.blade.php
+Open the /resources/themes/pterodactyl/layouts/admin.blade.php and add:
+
+<li class="{{ Route::currentRouteName() !== 'admin.billing' ?: 'active' }}">
+    <a href="{{ route('admin.billing') }}">
+        <i class="fa fa-credit-card"></i> <span>Billing</span>
+    </a>
+</li>
+
+
+Under:
+
+<li class="{{ Route::currentRouteName() !== 'admin.index' ?: 'active' }}">
+    <a href="{{ route('admin.index') }}">
+        <i class="fa fa-home"></i> <span>Overview</span>
+    </a>
+</li>
+
+
+
+/resources/views/admin/servers/new.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/new.blade.php and replace: 
+
+<form action="{{ route('admin.servers.new') }}" method="POST">
+
+Replace it to:
+
+<form name="submitation" action="{{ route('admin.servers.new') }}" onsubmit="return validateForm()" method="POST">
+
+
+
+
+/resources/views/admin/servers/new.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/new.blade.php and add:
+
+<div class="form-group">
+    <label for="renewal_date">Expiration date</label>
+    <input type="text" min="{{ $min_date }}" class="form-control" id="expiration" name="renewal_date" value="{{ old('renewal_date') }}" placeholder="Expiration Date">
+    <p class="small text-muted no-margin">The expiration date of this server. (Leave blank to keep the server from expiring)</p>
+</div>
+
+Under:
+
+<div class="form-group">
+    <label for="pName">Server Name</label>
+    <input type="text" class="form-control" id="pName" name="name" value="{{ old('name') }}" placeholder="Server Name">
+    <p class="small text-muted no-margin">Character limits: <code>a-z A-Z 0-9 _ - .</code> and <code>[Space]</code> (max 200 characters).</p>
+</div>
+
+
+
+
+/resources/views/admin/servers/new.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/new.blade.php and add:
+
+<script>
+    function validateForm() {
+        var submitation = document.forms["submitation"]["renewal_date"].value;
+        if (submitation == $min_date) {
+            return false;
+        }
+    }
+</script>
+
+Under:
+
+@parent
+
+
+
+
+/resources/views/admin/servers/view/details.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/view/details.blade.php and replace:
+
+<form action="{{ route('admin.servers.view.details', $server->id) }}" method="POST">
+
+Replace it to:
+
+<form name="submitation" action="{{ route('admin.servers.view.details', $server->id) }}" onsubmit="return validateForm()" method="POST">
+
+
+
+
+/resources/views/admin/servers/view/details.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/view/details.blade.php and add:
+Please isert this 
+
+<div class="form-group">
+    <label for="renewal_date" class="control-label">Expiration date</label>
+    <input type="text" min="{{ $min_date }}" name="renewal_date" value="{{ old('renewal_date', $server->renewal_date) }}" class="form-control" />
+    <p class="text-muted small">The expiration date of this server. (Leave blank to keep the server from expiring)</p>
+</div>
+
+under:
+
+<div class="form-group">
+    <label for="name" class="control-label">Server Name <span class="field-required"></span></label>
+    <input type="text" name="name" value="{{ old('name', $server->name) }}" class="form-control" />
+    <p class="text-muted small">Character limits: <code>a-zA-Z0-9_-</code> and <code>[Space]</code> (max 35 characters).</p>
+</div>
+
+
+
+
+/resources/views/admin/servers/view/details.blade.php
+Open the /resources/themes/pterodactyl/admin/servers/view/details.blade.php and add:
+
+function validateForm() {
+    var submitation = document.forms["submitation"]["expdate"].value;
+    if (submitation == $min_date) {
+        return false;
+    }
+    if (submitation < $min_date && submitation != '0' && submitation != '0000-00-00 00:00:00') {
+        return false;
+    }
+}
+
+Under:
+
+<script>
+
+
+
+
+/app/Services/Servers/DetailsModificationService.php
+Open the /app/Services/Servers/DetailsModificationService.php and add:
+
+'renewal_date' => Arr::get($data, 'renewal_date'),
+
+Under:
+
+'name' => Arr::get($data, 'name'),
+
+
+
+
+/app/Http/Controllers/Admin/Servers/CreateServerController.php
+Open the /app/Http/Controllers/Admin/CreateServerController.php and add:
+
+'min_date' => date('Y-m-d h-m-s'),
+
+Above:
+
+'locations' => $this->locationRepository->all(),
+
+
+
+
+/app/Http/Controllers/Admin/Servers/CreateServerController.php
+Open the /app/Http/Controllers/Admin/Servers/CreateServerController.php and add:
+
+$server->renewal_date = $request->renewal_date;
+$server->save();
+
+Under:
+
+$this->alert->success(trans('admin/server.alerts.server_created'))->flash();
+
+
+
+
+/app/Http/Controllers/Admin/Servers/ServerViewController.php
+Open the /app/Http/Controllers/Admin/ServersController.php and replace thie line:
+
+return $this->view->make('admin.servers.view.details', compact('server'));
+
+to this:
+
+return $this->view->make('admin.servers.view.details', ['min_date' => date('Y-m-d h-m-s')], compact('server'));
+
+
+
+
+/app/Http/Controllers/Admin/ServersController.php
+Open the /app/Http/Controllers/Admin/ServersController.php and add:
+
+'renewal_date',
+
+Under:
+
+'owner_id', 'external_id', 'name', 'description',
+
+
+
+
+/app/Console/Kernel.php
+Open the /app/Console/Kernel.php file and add:
+
+$schedule->command('p:billing:auto-suspension')->everyMinute();
+
+Under:
+
+$schedule->command('p:maintenance:clean-service-backups')->daily();
+
+
+
+
+/app/Models/User.php
+Open the /app/Models/User.php file and add:
+
+/**
+ * Add balance, create invoice and send notification
+ * 
+ * @param float $amount
+ */
+public function addBalance($amount) 
+{
+    $invoice = new Invoice();
+    $invoice->amount = $amount;
+    $invoice->user_id = $this->id;
+    $invoice->billing_first_name = $this->billing_first_name;
+    $invoice->billing_last_name = $this->billing_last_name;
+    $invoice->billing_address = $this->billing_address;
+    $invoice->billing_city = $this->billing_city;
+    $invoice->billing_country = $this->billing_country;
+    $invoice->billing_zip = $this->billing_zip;
+    $invoice->save();
+    $this->balance += $invoice->amount;
+    $this->save();
+}
+
+Under:
+
+public function sendPasswordResetNotification($token)
+{
+    $this->notify(new ResetPasswordNotification($token));
+}
+
+
+
+
+/app/Models/User.php
+Open the /app/Models/User.php file and add:
+
+/**
+ * Returns all the invoices for the user.
+ *
+ * @return \Illuminate\Database\Eloquent\Relations\HasMany
+ */
+public function invoices()
+{
+    return $this->hasMany(Invoice::class);
+}
+
+Under:
+
+public function servers()
+{
+    return $this->hasMany(Server::class, 'owner_id');
+}
+
+
+
+
+
+/resources/scripts/components/App.tsx
+Please paste this line to /resources/scripts/components/App.tsx under the import GlobalStylesheet from '@/assets/css/GlobalStylesheet'; line
+
+import BillingRouter from '@/routers/BillingRouter';
+
+
+Please paste this line to /resources/scripts/components/App.tsx under the <Route path="/server/:id" component={ServerRouter}/> line
+
+<Route path="/billing" component={BillingRouter}/>
+
+
+
+/resources/scripts/components/NavigationBar.tsx
+Please paste this line to /resources/scripts/components/NavigationBar.tsx after ...faSignOutAlt, faUserCircle - to same line
+
+, faShoppingCart 
+
+
+Please paste this line to /resources/scripts/components/NavigationBar.tsx above the {rootAdmin && line
+
+<NavLink to={'/billing'}>
+    <FontAwesomeIcon icon={faShoppingCart}/>
+</NavLink>
+
+
+
+
+
+
+After all code inserted to code and app and resources and database and vendor folder pasted. Please run this commands (node is required, min version: v13.x [node -v]):
+- npm i -g yarn
+- cd /var/www/pterodactyl
+- yarn install
+- yarn add react-paypal-checkout-button
+- yarn run build:production
+- php artisan route:clear && php artisan cache:clear && php artisan view:clear
+- php artisan migrate

@@ -1,0 +1,25 @@
+Note: all files and paths are located in the /var/www/pterodactyl/ directory
+
+Upload panelFiles into the /var/www/pterodactyl/ directory
+If it asks to overwrite a file, accept it
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/components/server/files/FileManagerContainer.tsx under import NewDirectoryButton from '@/components/server/files/NewDirectoryButton';
+
+import FetchButton from '@/components/server/files/FetchButton';
+
+----------------------------------------------------------------------------------------
+
+Paste this line in the file resources/scripts/components/server/files/FileManagerContainer.tsx under <NewDirectoryButton css={tw`w-full flex-none mt-4 sm:mt-0 sm:w-auto sm:mr-4`}/>
+
+                            <FetchButton css={tw`w-full flex-none mt-4 sm:mt-0 sm:w-auto sm:mr-4`}/>
+
+----------------------------------------------------------------------------------------
+
+Run "cd /var/www/pterodactyl && yarn run build:production && chown -R www-data:www-data * && php artisan view:clear && php artisan cache:clear" in the SSH
+
+If you got a error like "Command 'yarn' not found", execute the following in the SSH (this might take some time):
+cd /var/www/pterodactyl && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs && npm i -g yarn && cd /var/www/pterodactyl && yarn install
+
+Then run "cd /var/www/pterodactyl && && yarn run build:production && chown -R www-data:www-data * && php artisan view:clear && php artisan cache:clear" again
